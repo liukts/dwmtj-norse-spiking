@@ -4,7 +4,7 @@ import numpy as np
 import torchvision
 import modules/module_dwmtj_lif as dwmtj
 from norse.torch.module import encode
-#Hi sam
+
 from norse.torch.module.leaky_integrator import LILinearCell
 
 import os
