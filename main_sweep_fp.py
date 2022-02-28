@@ -2,7 +2,7 @@ import os
 import torch
 import numpy as np
 import torchvision
-import modules/module_dwmtj_lif as dwmtj
+import module_dwmtj_lif as dwmtj
 from norse.torch.module import encode
 
 from norse.torch.module.leaky_integrator import LILinearCell
@@ -23,6 +23,7 @@ if not os.path.isdir("./outputs/"):
     os.mkdir("./outputs/")
 if not os.path.isdir("./outputs/" + target_dir):
     os.mkdir("./outputs/" + target_dir)
+
 
 # normalize input images
 transform = torchvision.transforms.Compose(
@@ -207,7 +208,7 @@ for f in range(0,len(f_poisson)):
 
             model = Model( # instantiate a model
                 encoder=encode.PoissonEncoder(seq_length=int(T[h]),dt=1e-10,f_max=f_poisson[f]),
-                snn=ConvNet(alpha=100,w2=25e-9),
+                snn=ConvNet(alpha=100, w2=25e-9),
                 decoder=decode
             ).to(DEVICE)
 
@@ -234,6 +235,8 @@ for f in range(0,len(f_poisson)):
                 s = 0
             else: # save outputs every time you finish an epoch
                 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.concatenate(fin_acc))
+
 # reshape accuracies to a format that makes sense, then save
 fin_acc = np.concatenate(fin_acc).reshape(len(f_poisson),EPOCHS)
 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
+
