@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-target_dir = "fp_sweep"
+target_dir = "fp_sweep2"
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):

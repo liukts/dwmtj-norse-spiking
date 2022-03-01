@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-target_dir = "T_sweep"
+target_dir = "T_sweep2"
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -191,7 +191,7 @@ else:
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
 w2 = np.linspace(25e-9,25e-9,1)
-T = np.linspace(5,50,9)
+T = np.linspace(5,50,10)
 
 np.save("./outputs/" + target_dir + "/T.npy", np.array(T))
 
@@ -237,6 +237,6 @@ for f in range(0,len(f_poisson)):
                 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.concatenate(fin_acc))
 
 # reshape accuracies to a format that makes sense, then save
-fin_acc = np.concatenate(fin_acc).reshape(len(f_poisson),EPOCHS)
+fin_acc = np.concatenate(fin_acc).reshape(len(T),EPOCHS)
 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
 

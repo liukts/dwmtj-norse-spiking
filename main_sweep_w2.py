@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-target_dir = "w2_sweep2"
+target_dir = "w2_sweep_1_3_22"
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -190,7 +190,7 @@ else:
 
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
-w2 = np.linspace(25e-9,100e-9,5)
+w2 = np.linspace(25e-9,100e-9,6)
 #T = np.linspace(5,80,16)
 
 np.save("./outputs/" + target_dir + "/w2.npy", np.array(w2))
