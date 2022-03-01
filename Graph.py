@@ -20,6 +20,9 @@ if target_dir == "fp_sweep_1_3_22":
 if target_dir == "T_sweep_1_3_22":
     plt.legend(('T = 5', 'T = 10', 'T = 15', 'T = 20', 'T = 25', 'T = 30', 
     'T = 35', 'T = 40', 'T = 45', 'T = 50'), loc="lower right")
+if target_dir == "alpha_sweep_1_3_22":
+    plt.legend(('alpha = 5', 'alpha = 10', 'alpha = 15', 'alpha = 20', 'alpha = 25', 'alpha = 30', 
+    'alpha = 35', 'alpha = 40', 'alpha = 45', 'alpha = 50'), loc="lower right")
 
 
 plt.savefig('./outputs/' + target_dir + '/' + target_dir +'Accuracy_Graph.png')
