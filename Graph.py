@@ -12,9 +12,9 @@ plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.title(target_dir)
 
-if target_dir == "w2_sweep":
+if target_dir == "w2_sweep_1_3_22":
     plt.legend(('w2 = 25e-9', 'w2 = 40e-9', 'w2 = 55e-9', 'w2 = 70e-9', 'w2 = 85e-9', 'w2 = 100e-9'), loc="lower right")
-if target_dir == "fp_sweep":
+if target_dir == "fp_sweep_1_3_22":
     plt.legend(('fp = 1e9', 'fp = 2e9', 'fp = 3e9', 'fp = 4e9', 'fp = 5e9', 'fp = 6e9', 
     'fp = 7e9', 'fp = 8e9', 'fp = 9e9', 'fp = 10e9'), loc="lower right")
 if target_dir == "T_sweep_1_3_22":
