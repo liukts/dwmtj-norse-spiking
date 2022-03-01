@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-target_dir = "fp_sweep_1_3_22"
+target_dir = "alpha_sweep_1_3_22"
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -189,26 +189,27 @@ else:
     DEVICE = torch.device("cpu")
 
 # sweep parameters (define as needed)
-f_poisson = np.linspace(1e9,10e9,10)
+f_poisson = np.linspace(5e9,5e9,1)
 w2 = np.linspace(25e-9,25e-9,1)
 #T = np.linspace(5,80,16)
+alpha = np.linspace(20,100,5)
 
-np.save("./outputs/" + target_dir + "/f_p.npy", np.array(f_poisson))
+np.save("./outputs/" + target_dir + "/alpha.npy", np.array(alpha))
 
 
 sac = True      # sacrificial flag, basically the first run will be different from all the rest (not sure why), but this avoids it
 fin_acc = []    # empty array to hold final accuracies
 # sweep variables of interest
 for f in range(0,len(f_poisson)):
-    for h in range(0,len(T)):
+    for h in range(0,len(alpha)):
         # seed counter
         s = 0   
         while s < SEED:
             torch.manual_seed(5)    # set torch manual seed
 
             model = Model( # instantiate a model
-                encoder=encode.PoissonEncoder(seq_length=int(T[h]),dt=1e-10,f_max=f_poisson[f]),
-                snn=ConvNet(alpha=100, w2=25e-9),
+                encoder=encode.PoissonEncoder(seq_length=int(T[0]),dt=1e-10,f_max=f_poisson[f]),
+                snn=ConvNet(alpha = alpha[h], w2=25e-9),
                 decoder=decode
             ).to(DEVICE)
 
@@ -237,6 +238,6 @@ for f in range(0,len(f_poisson)):
                 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.concatenate(fin_acc))
 
 # reshape accuracies to a format that makes sense, then save
-fin_acc = np.concatenate(fin_acc).reshape(len(f_poisson),EPOCHS)
+fin_acc = np.concatenate(fin_acc).reshape(len(alpha),EPOCHS)
 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
 
