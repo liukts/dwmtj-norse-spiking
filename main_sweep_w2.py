@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "1_3_22"
+date = "2_3_22"
 target_dir = ("w2_sweep_" + date)
 
 # if folder does not exist, create it
