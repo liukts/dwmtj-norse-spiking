@@ -16,8 +16,8 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "1_3_22"
-target_dir = ("T_sweep2_" + date)
+date = "2_3_22_Epoch15"
+target_dir = ("T_sweep_" + date)
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -178,7 +178,7 @@ def save(path, epoch, model, optimizer, is_best=False):
     )
 
 # model parameters
-EPOCHS = 10         # number of iterations
+EPOCHS = 15         # number of iterations
 #T = [30]            # list of number of timesteps
 LR = 0.00002        # learning rate
 SEED = 1            # number of seeds to run the network (kept as 1 if manual seed is applied)
@@ -192,7 +192,7 @@ else:
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
 w2 = np.linspace(25e-9,25e-9,1)
-T = np.linspace(5,50,10)
+T = np.linspace(36,45,10)
 
 np.save("./outputs/" + target_dir + "/T.npy", np.array(T))
 
