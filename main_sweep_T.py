@@ -16,7 +16,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "2_3_22_Epoch15"
+date = "3_3_22_2ndEpoch15_42_44"
 target_dir = ("T_sweep_" + date)
 
 # if folder does not exist, create it
@@ -192,7 +192,7 @@ else:
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
 w2 = np.linspace(25e-9,25e-9,1)
-T = np.linspace(36,45,10)
+T = np.linspace(42,44,2)
 
 np.save("./outputs/" + target_dir + "/T.npy", np.array(T))
 
