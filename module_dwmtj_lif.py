@@ -22,7 +22,7 @@ class DWMTJParameters(NamedTuple):
     Ms: torch.Tensor = torch.as_tensor(8e5)
     a: torch.Tensor = torch.as_tensor(0.05)
     H: torch.Tensor = torch.as_tensor(0.0)
-    I: torch.Tensor = torch.as_tensor(80e-6)
+    I: torch.Tensor = torch.as_tensor(160e-6)
     x_th: torch.Tensor = torch.as_tensor(200e-9)
     x_reset: torch.Tensor = torch.as_tensor(0.0e-9)
     method: str = "super"

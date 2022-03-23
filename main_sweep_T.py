@@ -5,6 +5,8 @@ import torchvision
 import module_dwmtj_lif as dwmtj
 from norse.torch.module import encode
 
+import matplotlib.pyplot as plt
+
 from norse.torch.module.leaky_integrator import LILinearCell
 
 import os
@@ -16,8 +18,10 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "3_3_22_2ndEpoch15_42_44"
-target_dir = ("T_sweep_" + date)
+date = "3_21_22"
+target_dir1 = ("T_Sweeps/")
+target_dir2 = ("T_sweep_" + date)
+target_dir = (target_dir1 + target_dir2)
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -178,7 +182,7 @@ def save(path, epoch, model, optimizer, is_best=False):
     )
 
 # model parameters
-EPOCHS = 15         # number of iterations
+EPOCHS = 10        # number of iterations
 #T = [30]            # list of number of timesteps
 LR = 0.00002        # learning rate
 SEED = 1            # number of seeds to run the network (kept as 1 if manual seed is applied)
@@ -192,7 +196,7 @@ else:
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
 w2 = np.linspace(25e-9,25e-9,1)
-T = np.linspace(42,44,2)
+T = np.linspace(5,50,10) #Original Sweep: (5,50,10)
 
 np.save("./outputs/" + target_dir + "/T.npy", np.array(T))
 
@@ -241,3 +245,18 @@ for f in range(0,len(f_poisson)):
 fin_acc = np.concatenate(fin_acc).reshape(len(T),EPOCHS)
 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
 
+#Graphing Part
+legend = []
+for ii in range(0, len(T)):
+    legend.append(str(int(T[ii])) + "ns")
+
+accuracy_data = np.load('./outputs/' + target_dir + '/fin_acc.npy')
+
+plt.plot(accuracy_data.T)
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.title(target_dir2)
+
+plt.legend(legend, loc = "lower right")
+
+plt.savefig('./outputs/' + target_dir + '/' + target_dir2 +'_Accuracy_Graph.png')

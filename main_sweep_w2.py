@@ -10,14 +10,19 @@ from norse.torch.module.leaky_integrator import LILinearCell
 import os
 from tqdm import tqdm, trange
 
+import matplotlib.pyplot as plt
+import math
+
 # set manual seed for PyTorch to reuse weights
 torch.manual_seed(5)
 
 BATCH_SIZE = 100
 
 # folder to save results
-date = "2_3_22"
-target_dir = ("w2_sweep_" + date)
+date = "3_21_22"
+target_dir1 = ("w2_Sweeps/")
+target_dir2 = ("w2_sweep_" + date)
+target_dir = (target_dir1 + target_dir2)
 
 # if folder does not exist, create it
 if not os.path.isdir("./outputs/"):
@@ -191,7 +196,7 @@ else:
 
 # sweep parameters (define as needed)
 f_poisson = np.linspace(5e9,5e9,1)
-w2 = np.linspace(25e-9,100e-9,6)
+w2 = np.linspace(25e-9,100e-9,6) #Original Sweep: (25e-9,100e-9,6)
 #T = np.linspace(5,80,16)
 
 np.save("./outputs/" + target_dir + "/w2.npy", np.array(w2))
@@ -241,3 +246,18 @@ for f in range(0,len(w2)):
 fin_acc = np.concatenate(fin_acc).reshape(len(w2),EPOCHS)
 np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
 
+#Graphing Part
+legend = []
+for ii in range(0, len(w2)):
+    legend.append(str(math.ceil((w2[ii])/1e-9 + 1)) + "e-9")
+
+accuracy_data = np.load('./outputs/' + target_dir1 + '/' + target_dir2 + '/fin_acc.npy')
+
+plt.plot(accuracy_data.T)
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.title(target_dir2)
+
+plt.legend(legend, loc = "lower right")
+
+plt.savefig('./outputs/' + target_dir + '/' + target_dir2 +'_Accuracy_Graph.png')
