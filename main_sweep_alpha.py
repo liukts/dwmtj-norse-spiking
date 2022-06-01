@@ -18,7 +18,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "3_21_22"
+date = "3_26_22"
 target_dir1 = ("alpha_Sweeps/")
 target_dir2 = ("alpha_sweep_" + date)
 target_dir = (target_dir1 + target_dir2)
@@ -182,7 +182,7 @@ def save(path, epoch, model, optimizer, is_best=False):
     )
 
 # model parameters
-EPOCHS = 10         # number of iterations
+EPOCHS = 30         # number of iterations
 T = [30]            # list of number of timesteps
 LR = 0.00002        # learning rate
 SEED = 1            # number of seeds to run the network (kept as 1 if manual seed is applied)
@@ -194,7 +194,7 @@ else:
     DEVICE = torch.device("cpu")
 
 # sweep parameters (define as needed)
-f_poisson = np.linspace(5e9,5e9,1)
+f_poisson = np.linspace(10e9,10e9,1) #Originally 5e9
 w2 = np.linspace(25e-9,25e-9,1)
 #T = np.linspace(5,80,16)
 alpha = np.linspace(20,100,5) #Original Sweep: (20,100,5)

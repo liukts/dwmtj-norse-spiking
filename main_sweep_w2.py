@@ -19,7 +19,7 @@ torch.manual_seed(5)
 BATCH_SIZE = 100
 
 # folder to save results
-date = "3_21_22"
+date = "4_4_22_#3"
 target_dir1 = ("w2_Sweeps/")
 target_dir2 = ("w2_sweep_" + date)
 target_dir = (target_dir1 + target_dir2)
@@ -183,7 +183,7 @@ def save(path, epoch, model, optimizer, is_best=False):
     )
 
 # model parameters
-EPOCHS = 10         # number of iterations
+EPOCHS = 20         # number of iterations
 T = [30]            # list of number of timesteps
 LR = 0.00002        # learning rate
 SEED = 1            # number of seeds to run the network (kept as 1 if manual seed is applied)
@@ -195,8 +195,8 @@ else:
     DEVICE = torch.device("cpu")
 
 # sweep parameters (define as needed)
-f_poisson = np.linspace(5e9,5e9,1)
-w2 = np.linspace(25e-9,100e-9,6) #Original Sweep: (25e-9,100e-9,6)
+f_poisson = np.linspace(10e9,10e9,1) #Originally 5e9
+w2 = np.linspace(25e-9,100e-9,2) #Original Sweep: (25e-9,100e-9,6)
 #T = np.linspace(5,80,16)
 
 np.save("./outputs/" + target_dir + "/w2.npy", np.array(w2))
@@ -249,7 +249,7 @@ np.save("./outputs/" + target_dir + "/fin_acc.npy", np.array(fin_acc))
 #Graphing Part
 legend = []
 for ii in range(0, len(w2)):
-    legend.append(str(math.ceil((w2[ii])/1e-9 + 1)) + "e-9")
+    legend.append(str(math.ceil((w2[ii])/1e-9)) + "e-9")
 
 accuracy_data = np.load('./outputs/' + target_dir1 + '/' + target_dir2 + '/fin_acc.npy')
 
