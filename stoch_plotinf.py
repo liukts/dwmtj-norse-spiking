@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 plt.style.use(['science','nature'])
 
-basedir = ['230112_inf_neur','230112_inf_neurmw','230112_inf_lif']
-lstyle = ['-','-','--']
-col = ['tab:blue','tab:orange','black']
+# basedir = ['230112_inf_lif','230112_inf_neur','230112_inf_neurmw']
+basedir = ['230112_inf_lif','230112_inf_neur']
+lstyle = ['--','-','-']
+col = ['black','tab:blue','tab:orange']
 figacc,axacc = plt.subplots(1,1,figsize=(1.8,1.4))
 fignorm,axnorm = plt.subplots(1,1,figsize=(1.8,1.4))
 for id,i in enumerate(basedir):

@@ -1,0 +1,108 @@
+// flags
+notch_flag := 0
+unotch_only := 0
+edge_rough := 0
+preload_geom := 0
+SnapshotFormat = "png"
+Temp = 300
+//ThermSeed(0)
+random_seed := 0
+// geometry
+sizeX := 4000e-9
+sizeY := 1000e-9
+sizeZ := 1.2e-9
+hm_sizeZ := sizeZ
+fm_cross_sec := sizeY * sizeZ
+hm_cross_sec := sizeY * hm_sizeZ
+notch_diam := 9.0e-09
+rough_diam := 10e-9
+notch_space_L := 50e-9
+startpos := 500e-9
+
+// length spec for trapezoid
+w1 := 250e-9
+w2 := sizeY
+angle := Asin(0.5 * (w2 - w1) / sizeX)
+notch_space := notch_space_L / cos(angle)
+
+Nx := 3000
+Ny := 750
+
+setgridsize(Nx, Ny, 1)
+setcellsize(sizeX/Nx, sizeY/Ny, sizeZ)
+
+// notchpos := 2500e-9
+// baserect := rect(sizeX, sizeY)
+// unotch := circle(notch_diam).transl(-0.5*sizeX+notchpos, 0.5*w1, 0)
+// lnotch := circle(notch_diam).transl(-0.5*sizeX+notchpos, -0.5*w1, 0)
+// setGeom(baserect.sub(unotch).sub(lnotch))
+
+setGeom(baserect)
+
+fixed_w := 5e-9
+grainSize := 10e-09
+randomSeed := 0
+maxRegion := 253
+randK := 0.0125 // 0.2 results in 15.8 degree maximum deflection, 0.23 --> 18 degrees
+varK := 0.0
+ext_makegrains(grainSize, maxRegion, randomSeed)
+for i := 0; i < maxRegion; i++ {
+	// AnisU.setRegion(i, vector(randK*2*(rand()-0.5), randK*2*(rand()-0.5), 1))
+	// Ku1.setRegion(i, 5e5+((2*(rand()-0.5))*5e5*varK))
+}
+defregion(254, rect(fixed_w, sizeY).transl(-((0.5*sizeX)-(0.5*fixed_w)), 0, 0))
+defregion(255, rect(fixed_w, sizeY).transl(((0.5*sizeX)-(0.5*fixed_w)), 0, 0))
+m = TwoDomain(0, 0, 1, 1, 0, 0, 0, 0, -1).transl(-(0.5*sizeX)+startpos, 0, 0)
+m.setRegion(254, uniform(0, 0, 1))
+m.setRegion(255, uniform(0, 0, -1))
+frozenspins.setRegion(254, 254)
+frozenspins.setRegion(255, 255)
+EdgeSmooth = 8
+
+// material params
+Ms := 800e3
+Msat = Ms
+Aex = 1.3e-11
+al := 0.05
+alpha = al
+// Ku1 = 5e5
+AnisU = vector(0, 0, 1)
+dmi := -0.5e-3
+Dind = dmi
+
+// STT
+Xi = 0.05
+stt_P := 0.7
+// SHE
+sot_P := 0.2
+scale2hm := sot_P / stt_P
+pol = sot_P
+// Rashba
+u_B := 9.274e-24
+alpha_R := 2e-30
+
+// spacer layer
+lambda = 1
+epsilonprime = 0
+fixedlayer = vector(0, -1, 0)
+
+// current
+I_pulse := -8e-6
+I := I_pulse
+fm2hm := 0.5 // fraction current through fm
+j_fm := 0.0
+j_hm := 0.0
+
+// relax magnetization
+// relax()
+
+// add center magnetization to output & run
+mx_mid := cropY(m.Comp(2), floor(Ny/2), floor(Ny/2+1))
+tableAdd(mx_mid)
+tableAddVar(I, "I_x", "A")
+tableautosave(10e-12)
+
+B_ext = vector(0, 0, 0)
+
+J = vector(0, 0, 0)
+run(30e-9)

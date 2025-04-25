@@ -7,11 +7,12 @@ from norse.torch import LIFParameters
 from norse.torch.module.lif import LIFCell
 from norse.torch.module.leaky_integrator import LILinearCell
 from norse.torch.module import encode
+from module_dwmtj_lif import DWMTJCell,DWMTJParameters
 
 from tqdm import tqdm, trange
 
 # folder to save results
-target_dir = "0524_fashion_default"
+target_dir = "240430_fashion_if_2"
 
 BATCH_SIZE = 100
 
@@ -63,6 +64,9 @@ class ConvNet(torch.nn.Module):
         self.lif0 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
         self.lif1 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
         self.lif2 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
+        # self.lif0 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
+        # self.lif1 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
+        # self.lif2 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
         self.out = LILinearCell(500, 10)
 
     def forward(self, x):
@@ -87,6 +91,52 @@ class ConvNet(torch.nn.Module):
             z = self.fc1(z)        
             z, s2 = self.lif2(z, s2)
             v, so = self.out(torch.nn.functional.relu(z), so)
+            voltages[ts, :, :] = v
+        return voltages
+
+class SeqNet(torch.nn.Module):
+    def __init__(
+        self,  h1=100, h2=100, feature_size=28, beta=20, method="super", alpha=100
+    ):
+        super(SeqNet, self).__init__()
+
+        self.fc0 = torch.nn.Linear(feature_size*feature_size, h1)
+        self.fc1 = torch.nn.Linear(h1, h2)
+        self.bn0 = torch.nn.BatchNorm1d(h1)
+        self.bn1 = torch.nn.BatchNorm1d(h2)
+        self.bnout = torch.nn.BatchNorm1d(10)
+        self.lif0 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
+        self.lif1 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
+        self.lif2 = LIFCell(p=LIFParameters(method=method, alpha=alpha))
+        self.lif0 = LIFCell(p=LIFParameters(method=method, alpha=alpha, tau_syn_inv=50))
+        self.lif1 = LIFCell(p=LIFParameters(method=method, alpha=alpha, tau_syn_inv=50))
+        self.lif2 = LIFCell(p=LIFParameters(method=method, alpha=alpha, tau_syn_inv=50))
+        # self.lif0 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
+        # self.lif1 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
+        # self.lif2 = DWMTJCell(p=DWMTJParameters(method=method, alpha=alpha))
+        self.out = LILinearCell(h2, 10)
+
+    def forward(self, x):
+        seq_length = x.shape[0]
+        batch_size = x.shape[1]
+        
+        # specify the initial states
+        s0 = s1 = s2 = so = None
+
+        voltages = torch.zeros(
+            seq_length, batch_size, 10, device=x.device, dtype=x.dtype
+        )
+
+        for ts in range(seq_length):
+            z = self.fc0(x[ts, :].view(-1,28*28))
+            z, s0 = self.lif0(z, s0)
+            z = self.bn0(z)
+            # print(z)
+            z = self.fc1(z)
+            z, s1 = self.lif1(z, s1)
+            z = self.bn1(z)        
+            # z = self.bnout(z)
+            v, so = self.out(z, so)
             voltages[ts, :, :] = v
         return voltages
 
@@ -148,8 +198,8 @@ def save(path, epoch, model, optimizer, is_best=False):
         path,
     )
 
-EPOCHS = 5  
-T = 48
+EPOCHS = 10  
+T = 400
 LR = 0.001
 
 if torch.cuda.is_available():
@@ -159,7 +209,7 @@ else:
 
 model = Model(
     encoder=encode.ConstantCurrentLIFEncoder(T),
-    snn=ConvNet(alpha=80),
+    snn=SeqNet(),
     decoder=decode
 ).to(DEVICE)
 
@@ -170,6 +220,9 @@ mean_losses = []
 test_losses = []
 accuracies = []
 
+if not os.path.exists("./outputs/" + target_dir):
+    os.mkdir("./outputs/" + target_dir)
+
 pbar = trange(EPOCHS, ncols=80, unit="epoch")
 for epoch in pbar:
     training_loss, mean_loss = train(model, DEVICE, train_loader, optimizer, epoch, max_epochs=EPOCHS)
@@ -178,13 +231,13 @@ for epoch in pbar:
     mean_losses.append(mean_loss)
     test_losses.append(test_loss)
     accuracies.append(accuracy)       
-    pbar.set_postfix(accuracy=accuracies[-1])
+    pbar.set_postfix(accuracy=accuracies[-3:])
 
-os.mkdir("./outputs/" + target_dir)
-np.save("./outputs/" + target_dir + "/training_losses.npy", np.array(training_losses))
-np.save("./outputs/" + target_dir + "/mean_losses.npy", np.array(mean_losses))
-np.save("./outputs/" + target_dir + "/test_losses.npy", np.array(test_losses))
-np.save("./outputs/" + target_dir + "/accuracies.npy", np.array(accuracies))
+    np.save("./outputs/" + target_dir + "/training_losses.npy", np.array(training_losses))
+    np.save("./outputs/" + target_dir + "/mean_losses.npy", np.array(mean_losses))
+    np.save("./outputs/" + target_dir + "/test_losses.npy", np.array(test_losses))
+    np.save("./outputs/" + target_dir + "/accuracies.npy", np.array(accuracies))
+
 model_path = "./outputs/" + target_dir + "/fmnist_dwmtj.pt"
 save(
     model_path,

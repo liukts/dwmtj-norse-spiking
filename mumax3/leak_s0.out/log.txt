@@ -1,0 +1,97 @@
+//mumax 3.10 [linux_amd64 go1.14(gc) CUDA-11.0]
+//GPU info: Quadro RTX 4000(7973MB), CUDA Driver 11.4, cc=7.5, using cc=75 PTX
+//(c) Arne Vansteenkiste, Dynamat LAB, Ghent University, Belgium
+//This is free software without any warranty. See license.txt
+//********************************************************************//
+//  If you use mumax in any work or publication,                      //
+//  we kindly ask you to cite the references in references.bib        //
+//********************************************************************//
+//output directory: leak_s0.out/
+notch_flag := 0
+unotch_only := 0
+edge_rough := 0
+preload_geom := 0
+SnapshotFormat = "png"
+Temp = 300
+ThermSeed(0)
+random_seed := 0
+sizeX := 5000e-9
+sizeY := 450e-9
+sizeZ := 3e-9
+hm_sizeZ := sizeZ
+fm_cross_sec := sizeY * sizeZ
+hm_cross_sec := sizeY * hm_sizeZ
+notch_diam := 9.0e-09
+rough_diam := 10e-9
+notch_space_L := 50e-9
+w1 := 150e-9
+w2 := sizeY
+angle := Asin(0.5 * (w2 - w1) / sizeX)
+notch_space := notch_space_L / cos(angle)
+Nx := 2500
+Ny := 300
+setgridsize(Nx, Ny, 1)
+setcellsize(sizeX/Nx, sizeY/Ny, sizeZ)
+notchpos := 2500e-9
+baserect := rect(sizeX, sizeY)
+unotch := circle(notch_diam).transl(-0.5*sizeX+notchpos, 0.5*w1, 0)
+lnotch := circle(notch_diam).transl(-0.5*sizeX+notchpos, -0.5*w1, 0)
+setGeom(baserect.sub(unotch).sub(lnotch))
+fixed_w := 5e-9
+grainSize := 10e-09
+randomSeed := 0
+maxRegion := 253
+randK := 0.0125
+varK := 0.0
+ext_makegrains(grainSize, maxRegion, randomSeed)
+for i := 0; i < maxRegion; i++ {
+	Ku1.setRegion(i, 5e5+((2*(rand()-0.5))*5e5*varK))
+}
+defregion(254, rect(fixed_w, sizeY).transl(-((0.5*sizeX)-(0.5*fixed_w)), 0, 0))
+defregion(255, rect(fixed_w, sizeY).transl(((0.5*sizeX)-(0.5*fixed_w)), 0, 0))
+startpos := notchpos
+m = TwoDomain(0, 0, 1, 1, 0, 0, 0, 0, -1).transl(-(0.5*sizeX)+startpos, 0, 0)
+m.setRegion(254, uniform(0, 0, 1))
+m.setRegion(255, uniform(0, 0, -1))
+frozenspins.setRegion(254, 254)
+frozenspins.setRegion(255, 255)
+EdgeSmooth = 8
+Ms := 800e3
+Msat = Ms
+Aex = 1.3e-11
+al := 0.05
+alpha = al
+AnisU = vector(0, 0, 1)
+dmi := -0.5e-3
+Dind = dmi
+Xi = 0.05
+stt_P := 0.7
+sot_P := 0.2
+scale2hm := sot_P / stt_P
+pol = sot_P
+u_B := 9.274e-24
+alpha_R := 2e-30
+lambda = 1
+epsilonprime = 0
+fixedlayer = vector(0, -1, 0)
+I_pulse := -8e-6
+I := I_pulse
+fm2hm := 0.5
+j_fm := 0.0
+j_hm := 0.0
+relax()
+mx_mid := cropY(m.Comp(2), floor(Ny/2), floor(Ny/2+1))
+tableAdd(mx_mid)
+tableAddVar(I, "I_x", "A")
+tableautosave(10e-12)
+J = vector(0, 0, 0)
+B_ext = vector(0, 0, 0)
+run(0.5e-6)
+//********************************************************************//
+//Please cite the following references, relevant for your simulation. //
+//See bibtex file in output folder for justification.                 //
+//********************************************************************//
+//   * Vansteenkiste et al., AIP Adv. 4, 107133 (2014).
+//   * Leliaert et al., J. Appl. Phys. 115, 233903 (2014)
+//   * Mulkers et al., Phys. Rev. B 95, 144401 (2017).
+//   * Leliaert et al., AIP Adv. 7, 125010 (2017).

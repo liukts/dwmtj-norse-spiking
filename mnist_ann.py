@@ -17,23 +17,21 @@ BATCH_SIZE = 100
 FEATURE_SIZE = 28
 INPUT_SIZE = FEATURE_SIZE ** 2
 
-mnist_transform = torchvision.transforms.Compose(
-    [
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize((0.1307,), (0.3081,)),
-    ]
-)
+# mnist_transform = torchvision.transforms.Compose(
+#     [
+#         torchvision.transforms.ToTensor(),
+#         torchvision.transforms.Normalize((0.1307,), (0.3081,)),
+#     ]
+# )
 
-train_data_mnist = torchvision.datasets.MNIST(
+train_data_mnist = torchvision.datasets.FashionMNIST(
     root=".",
     train=True,
     download=True,
-    transform=mnist_transform,
 )
-test_data_mnist = torchvision.datasets.MNIST(
+test_data_mnist = torchvision.datasets.FashionMNIST(
     root=".",
     train=False,
-    transform=mnist_transform,
 )
 train_loader_mnist = torch.utils.data.DataLoader(
     train_data_mnist,

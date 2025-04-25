@@ -18,13 +18,13 @@ class DWMTJParameters(NamedTuple):
 
     tau_syn_inv: torch.Tensor = torch.as_tensor(1.0/5e-10)
     w1: torch.Tensor = torch.as_tensor(25e-9)
-    w2: torch.Tensor = torch.as_tensor(25e-9)
+    w2: torch.Tensor = torch.as_tensor(105e-9)
     d: torch.Tensor = torch.as_tensor(1.5e-9)
     P: torch.Tensor = torch.as_tensor(0.7)
     Ms: torch.Tensor = torch.as_tensor(8e5)
     a: torch.Tensor = torch.as_tensor(0.05)
     H: torch.Tensor = torch.as_tensor(0.0)
-    I: torch.Tensor = torch.as_tensor(80e-6)
+    I: torch.Tensor = torch.as_tensor(50e-6)
     x_th: torch.Tensor = torch.as_tensor(200e-9)
     x_reset: torch.Tensor = torch.as_tensor(0.0e-9)
     method: str = "super"
@@ -111,14 +111,15 @@ def _dwmtj_feed_forward_step_jit(
     w = state.x*((p.w2-p.w1)/p.x_th) + p.w1
     dx = dt * (((state.i * p.I)/(w * p.d)) * 
         (2*9.274e-24*p.P)/(2*1.602e-19*p.Ms*(1+p.a**2)) - mu_Hfield*p.H - mu_Hslope*Hslope)
+    dx = dx*torch.empty_like(dx).normal_(mean=torch.tensor(1.0),std=torch.tensor(0.3))
     x_next = state.x + dx
 
     # compute new spikes
     z_new = threshold(x_next - p.x_th, p.method, p.alpha)
 
     # compute reset
-    x_new = (1 - z_new) * x_next + z_new * p.x_reset
-    x_new = torch.where(x_new > 0, x_new, torch.tensor(0,dtype=torch.float32,device=torch.device("cuda")))
+    x_new = torch.where(x_next > 0, x_next, torch.tensor(0,dtype=torch.float32,device=torch.device("cuda")))
+    # x_new = (1 - z_new) * x_new + z_new * p.x_reset
 
     # compute current updates
     di = -dt * p.tau_syn_inv * state.i

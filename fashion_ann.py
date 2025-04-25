@@ -11,7 +11,7 @@ from tqdm import tqdm, trange
 import os
 
 # folder to save results
-target_dir = "0712_fashion_ann"
+target_dir = "240401_fashion_ann"
 
 BATCH_SIZE = 100
 FEATURE_SIZE = 28
@@ -58,6 +58,21 @@ class ConvNet(nn.Module):
         x = F.max_pool2d(self.conv1(x), 2, 2)
         x = F.max_pool2d(self.conv2(x), 2, 2)
         x = x.view(-1, 4 ** 2 * 50)
+        x = F.relu(self.fc1(x))
+        x = self.out(x)
+        return F.log_softmax(x, dim=1)
+
+class SeqNet(nn.Module):
+    def __init__(self):
+        super(SeqNet, self).__init__()
+        self.features = int(((FEATURE_SIZE - 4) / 2 - 4) / 2)
+        self.conv1 = nn.Conv2d(1, 20, 5, 1)
+        self.conv2 = nn.Conv2d(20, 50, 5, 1)
+        self.fc1 = nn.Linear(28*28, 200)
+        self.out = nn.Linear(200, 10)
+
+    def forward(self, x):
+        x = x.view(-1,28*28)
         x = F.relu(self.fc1(x))
         x = self.out(x)
         return F.log_softmax(x, dim=1)
@@ -118,9 +133,9 @@ test_loader = test_loader_mnist
 rseed = 0
 torch.manual_seed(rseed)
 lr = 0.001
-model = ConvNet().to(DEVICE)
+model = SeqNet().to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=lr)
-epochs = 5
+epochs = 20
 
 train_losses = []
 test_losses = []
